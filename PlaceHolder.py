@@ -16,7 +16,7 @@ class Ball:
         if self.ycor < 0 or self.ycor > 1000 - self.radius:
             self.yvel = -self.yvel
         if self.rect.colliderect(Ninjaddle):
-            pygame.quit()
+            ninjaddle.ded()
         self.xcor += self.xvel
         self.ycor += self.yvel
         self.rect = pygame.draw.ellipse(screen, self.color,
@@ -24,17 +24,22 @@ class Ball:
 
 class GreenBall(Ball):
     def __init__(self, radius, xcor, ycor, xvel, yvel):
+        self.status = False
         super().__init__(radius, GREEN, xcor, ycor, xvel, yvel)
+
     def move(self, Ninjaddle):
-        if self.xcor < 0 or self.xcor > 1400 - self.radius:
-            self.xvel = -self.xvel
-        if self.ycor < 0 or self.ycor > 1000 - self.radius:
-            self.yvel = -self.yvel
-        if self.rect.colliderect(Ninjaddle):
-            self.color = BLACK
-        self.xcor += self.xvel
-        self.ycor += self.yvel
-        self.rect = pygame.draw.ellipse(screen, self.color,
+        if not self.status:
+            if self.xcor < 0 or self.xcor > 1400 - self.radius:
+                self.xvel = -self.xvel
+            if self.ycor < 0 or self.ycor > 1000 - self.radius:
+                self.yvel = -self.yvel
+            if self.rect.colliderect(Ninjaddle):
+                self.status = True
+                self = Ball(20,WHITE,0,0,self.xvel,self.yvel)
+                ball_list.append(ball)
+            self.xcor += self.xvel
+            self.ycor += self.yvel
+            self.rect = pygame.draw.ellipse(screen, self.color,
                             [self.xcor,self.ycor,2*self.radius,2*self.radius])
 
 class Ninjaddle:
@@ -80,6 +85,9 @@ class Ninjaddle:
         	self.xcor += 45
         	self.ycor -= 45
         self.rotatestate = not self.rotatestate
+    def ded(self):
+        self.xcor = 700
+        self.ycor = 500    
 #define constants
 BLACK = (0,0,0)
 WHITE = (255,255,255)
@@ -107,7 +115,7 @@ for i in range(0):
 
     ball_list.append(ball)
 
-for i in range(100):
+for i in range(10):
     greenball = GreenBall(20,
                 randint(0,300),
                 randint(0,950),
@@ -115,7 +123,7 @@ for i in range(100):
                 randint(-3,3))
        
     ball_list.append(greenball)
-ninjaddle = Ninjaddle(700, 500, 100, 10, WHITE, 0)
+ninjaddle = Ninjaddle(700, 500, 1000, 10, WHITE, 0)
 acceleration = 1.2
 
 
@@ -154,10 +162,6 @@ while not done:
 
     for ball in ball_list:
         ball.move(ninjaddle)
-        if ball.rect.colliderect(ninjaddle):
-            print("colide")
-
-
 
     pygame.display.update()
     clock.tick(60)
